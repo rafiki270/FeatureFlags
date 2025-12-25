@@ -1,0 +1,109 @@
+export const FEATURE_FLAG_KEY_PATTERN = /^[a-z0-9_.-]+$/i;
+
+const normalizeKey = (value) => String(value || "").trim();
+
+export const validateFeatureFlagKey = (key) => FEATURE_FLAG_KEY_PATTERN.test(normalizeKey(key));
+
+export const ensureFeatureFlag = async (prisma, key, options = {}) => {
+  const normalizedKey = normalizeKey(key);
+  if (!FEATURE_FLAG_KEY_PATTERN.test(normalizedKey)) {
+    throw new Error("Feature flag keys must only contain letters, numbers, '.', '-', or '_' characters.");
+  }
+
+  const { description = null, defaultEnabled = false, metadata } = options;
+  const createData = {
+    key: normalizedKey,
+    description: description ?? null,
+    defaultEnabled: Boolean(defaultEnabled),
+  };
+  if (metadata !== undefined) {
+    createData.metadata = metadata ?? null;
+  }
+
+  try {
+    return await prisma.featureFlag.create({ data: createData });
+  } catch (error) {
+    if (error?.code === "P2002") {
+      const existing = await prisma.featureFlag.findUnique({ where: { key: normalizedKey } });
+      if (!existing) {
+        throw error;
+      }
+
+      const updateData = {};
+      let shouldUpdate = false;
+      if (!existing.description && description) {
+        updateData.description = description;
+        shouldUpdate = true;
+      }
+      if (existing.metadata == null && metadata !== undefined) {
+        updateData.metadata = metadata ?? null;
+        shouldUpdate = true;
+      }
+
+      if (shouldUpdate) {
+        return prisma.featureFlag.update({
+          where: { key: normalizedKey },
+          data: updateData,
+        });
+      }
+
+      return existing;
+    }
+
+    throw error;
+  }
+};
+
+export const isFeatureFlagEnabled = async (prisma, key, options = {}) => {
+  const normalizedKey = normalizeKey(key);
+  if (!normalizedKey) {
+    return false;
+  }
+
+  const {
+    scope = "platform",
+    targetKey = null,
+    description = null,
+    defaultEnabled = false,
+    metadata,
+    autoCreate = true,
+  } = options;
+
+  let flag = await prisma.featureFlag.findUnique({ where: { key: normalizedKey } });
+
+  if (!flag && autoCreate) {
+    flag = await ensureFeatureFlag(prisma, normalizedKey, {
+      description,
+      defaultEnabled,
+      metadata,
+    });
+  }
+
+  if (!flag) {
+    return Boolean(defaultEnabled);
+  }
+
+  if (scope !== "platform" || targetKey !== null) {
+    const override = await prisma.featureFlagOverride.findFirst({
+      where: {
+        flagId: flag.id,
+        scope,
+        targetKey: targetKey ?? null,
+      },
+    });
+
+    if (override) {
+      if (override.rolloutPercentage != null) {
+        if (override.rolloutPercentage <= 0) {
+          return false;
+        }
+        if (override.rolloutPercentage >= 100) {
+          return Boolean(override.enabled);
+        }
+      }
+      return Boolean(override.enabled);
+    }
+  }
+
+  return Boolean(flag.defaultEnabled);
+};
