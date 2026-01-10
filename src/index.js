@@ -54,6 +54,18 @@ export const ensureFeatureFlag = async (prisma, key, options = {}) => {
   }
 };
 
+export const deleteFeatureFlag = async (prisma, key) => {
+  const normalizedKey = normalizeKey(key);
+  if (!normalizedKey) {
+    return null;
+  }
+  const existing = await prisma.featureFlag.findUnique({ where: { key: normalizedKey } });
+  if (!existing) {
+    return null;
+  }
+  return prisma.featureFlag.delete({ where: { key: normalizedKey } });
+};
+
 export const isFeatureFlagEnabled = async (prisma, key, options = {}) => {
   const normalizedKey = normalizeKey(key);
   if (!normalizedKey) {
