@@ -147,14 +147,6 @@ const FeatureFlagsPage = ({ apiFetch, definitions = featureFlagDefinitions, titl
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 className="text-xl font-semibold text-slate-900">{title}</h2>
-          <p className="text-sm text-slate-500">
-            Feature flags let you prepare rollouts before shipping the change.
-          </p>
-        </div>
-      </div>
 
       {loadError ? <p className="text-sm text-red-500">{loadError}</p> : null}
       {error ? <p className="text-sm text-red-500">{error}</p> : null}
@@ -242,15 +234,18 @@ const FeatureFlagsPage = ({ apiFetch, definitions = featureFlagDefinitions, titl
           <span>Flags</span>
           <span className="text-xs text-slate-400">{sortedFlags.length} total</span>
         </div>
-        <div className="divide-y divide-slate-100">
+        <div className="space-y-2 px-4 pb-4">
           {isLoading ? (
-            <div className="px-4 py-6 text-sm text-slate-500">Loading flags…</div>
+            <div className="py-6 text-sm text-slate-500">Loading flags…</div>
           ) : null}
           {!isLoading && !sortedFlags.length ? (
-            <div className="px-4 py-6 text-sm text-slate-500">No flags yet.</div>
+            <div className="py-6 text-sm text-slate-500">No flags yet.</div>
           ) : null}
           {sortedFlags.map((flag) => (
-            <div key={flag.key} className="flex flex-wrap items-center gap-4 px-4 py-3">
+            <div
+              key={flag.key}
+              className="flex flex-wrap items-center gap-4 rounded-lg border border-slate-100 px-4 py-3"
+            >
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold text-slate-900">{flag.key}</p>
                 <p className="truncate text-xs text-slate-500">
@@ -270,14 +265,14 @@ const FeatureFlagsPage = ({ apiFetch, definitions = featureFlagDefinitions, titl
               </button>
               <button
                 type="button"
-                className="h-9 rounded-lg border border-slate-200 px-3 text-xs font-semibold text-slate-600"
+                className="h-9 rounded-lg bg-slate-900 px-3 text-xs font-semibold text-white hover:bg-slate-800"
                 onClick={() => handleEdit(flag)}
               >
                 Edit
               </button>
               <button
                 type="button"
-                className="h-9 rounded-lg border border-rose-200 px-3 text-xs font-semibold text-rose-600"
+                className="h-9 rounded-lg bg-rose-600 px-3 text-xs font-semibold text-white hover:bg-rose-500"
                 onClick={() => handleDelete(flag)}
               >
                 Delete
