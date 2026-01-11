@@ -25,6 +25,33 @@ export default function Flags() {
 }
 ```
 
+### Props
+
+- `apiFetch(url, options?)`: async function matching `fetch` signature, expected to throw on non-2xx.
+- `definitions?`: override the default `featureFlagDefinitions` array.
+- `title?`: custom page heading (default: `"Future flags"`).
+
+### Required API endpoints
+
+The page expects these API routes (methods and payloads):
+
+- `GET /feature-flags` → returns array of flags.
+- `POST /feature-flags` → create `{ key, description?, defaultEnabled? }`.
+- `PATCH /feature-flags/:key` → update `{ description?, defaultEnabled? }`.
+- `DELETE /feature-flags/:key` → delete a flag.
+
+Each response should return the flag shape:
+
+```json
+{
+  "id": "uuid",
+  "key": "admin.future_flags",
+  "description": "string or null",
+  "defaultEnabled": false,
+  "metadata": {}
+}
+```
+
 ## Prisma schema requirements
 Your Prisma schema must include `FeatureFlag` and `FeatureFlagOverride` models.
 
