@@ -8,6 +8,12 @@ const emptyForm = {
   defaultEnabled: false,
 };
 
+const normalizeDescription = (value) => {
+  if (value == null) return "";
+  const trimmed = String(value).trim();
+  return trimmed === "(null)" ? "" : trimmed;
+};
+
 const FeatureFlagsPage = ({ apiFetch, definitions = featureFlagDefinitions, title = "Future flags" }) => {
   const [flags, setFlags] = useState([]);
   const [activeFlagKey, setActiveFlagKey] = useState(null);
@@ -57,7 +63,7 @@ const FeatureFlagsPage = ({ apiFetch, definitions = featureFlagDefinitions, titl
     setActiveFlagKey(flag.key);
     setFormValues({
       key: flag.key,
-      description: flag.description ?? "",
+      description: normalizeDescription(flag.description),
       defaultEnabled: flag.defaultEnabled,
     });
   };
@@ -248,7 +254,7 @@ const FeatureFlagsPage = ({ apiFetch, definitions = featureFlagDefinitions, titl
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold text-slate-900">{flag.key}</p>
                 <p className="truncate text-xs text-slate-500">
-                  {flag.description || "No description"}
+                  {normalizeDescription(flag.description) || "No description"}
                 </p>
               </div>
               <button

@@ -31,6 +31,10 @@ export default function Flags() {
 - `definitions?`: override the default `featureFlagDefinitions` array.
 - `title?`: custom page heading (default: `"Future flags"`).
 
+### Display behavior
+
+The admin UI treats `null`, empty strings, or the literal string `"(null)"` as no description and shows `"No description"` in the list.
+
 ## Client-side caching (CSR)
 
 You can load feature flags once per session and reuse them without repeated requests:
