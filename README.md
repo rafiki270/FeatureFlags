@@ -31,6 +31,22 @@ export default function Flags() {
 - `definitions?`: override the default `featureFlagDefinitions` array.
 - `title?`: custom page heading (default: `"Future flags"`).
 
+## Client-side caching (CSR)
+
+You can load feature flags once per session and reuse them without repeated requests:
+
+```ts
+import { loadFlagsOnce, useFlags } from "@rafiki270/feature-flags";
+
+// Somewhere in your bootstrapping code:
+await loadFlagsOnce(apiFetch); // populates in-memory cache
+
+// Later in components or services:
+const { flags, loaded, error } = useFlags(apiFetch);
+```
+
+`loadFlagsOnce(fetchImpl, endpoint?)` loads `/feature-flags` by default, caches the array, and returns it. `useFlags` returns the cached flags synchronously (and triggers a load on first call if not already loaded).
+
 ### Required API endpoints
 
 The page expects these API routes (methods and payloads):
@@ -45,7 +61,7 @@ Each response should return the flag shape:
 ```json
 {
   "id": "uuid",
-  "key": "admin.future_flags",
+  "key": "admin.feature_key",
   "description": "string or null",
   "defaultEnabled": false,
   "metadata": {}
