@@ -12,6 +12,19 @@ Lightweight feature flag helpers for Prisma-backed services.
 npm install @rafiki270/feature-flags
 ```
 
+## Admin UI
+
+Use the reusable React page to manage flags in the admin:
+
+```jsx
+import { FeatureFlagsPage } from "@rafiki270/feature-flags/admin";
+import { apiFetch } from "./api";
+
+export default function Flags() {
+  return <FeatureFlagsPage apiFetch={apiFetch} />;
+}
+```
+
 ## Prisma schema requirements
 Your Prisma schema must include `FeatureFlag` and `FeatureFlagOverride` models.
 
